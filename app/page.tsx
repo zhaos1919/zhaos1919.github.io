@@ -51,6 +51,13 @@ export default function Home() {
       const y = (event.clientY / window.innerHeight - .5) * 22;
       heroArt.current?.style.setProperty('--mouse-x', `${x}px`);
       heroArt.current?.style.setProperty('--mouse-y', `${y}px`);
+      heroArt.current?.querySelectorAll<HTMLElement>('.liquid-blob').forEach((blob, index) => {
+        const strength = [.54, .34, .21, .13][index] ?? .1;
+        const localX = (event.clientX - window.innerWidth * .73) * strength;
+        const localY = (event.clientY - window.innerHeight * .5) * strength;
+        blob.style.setProperty('--liquid-x', `${localX}px`);
+        blob.style.setProperty('--liquid-y', `${localY}px`);
+      });
     };
     const hover = (event: Event) => {
       const target = event.target as HTMLElement;
@@ -74,7 +81,7 @@ export default function Home() {
 
   return <main>
     <div className="cursor-dot" ref={cursorDot} aria-hidden="true"/>
-    <div className="cursor-ring" ref={cursorRing} aria-hidden="true"><span>VIEW</span></div>
+    <div className="cursor-ring" ref={cursorRing} aria-hidden="true"/>
     <div className="scroll-progress" ref={scrollProgress} aria-hidden="true"/>
     <a className="skip-link" href="#work">跳至项目</a>
     <nav className="site-nav" aria-label="主导航">
@@ -92,7 +99,13 @@ export default function Home() {
         <div className="hero-actions"><a className="button primary" href="#work">View selected work <ArrowDown size={17}/></a><a className="button secondary" href="mailto:s67587698@gmail.com">Get in touch <Mail size={16}/></a></div>
       </div>
       <div className="hero-art" ref={heroArt}>
-        <div className="orb orb-a"/><div className="orb orb-b"/><span className="cross" aria-hidden="true">+</span>
+        <svg className="liquid-filter" aria-hidden="true">
+          <filter id="liquid-goo"><feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12" result="goo"/></filter>
+        </svg>
+        <div className="liquid-field" aria-hidden="true">
+          <div className="liquid-blob liquid-one"><i/></div><div className="liquid-blob liquid-two"><i/></div><div className="liquid-blob liquid-three"><i/></div><div className="liquid-blob liquid-four"><i/></div>
+        </div>
+        <div className="orb orb-b"/><span className="cross" aria-hidden="true">+</span>
         <div className="ring-shell" aria-label="环形页面导航">
           <div className="ring-orbit" aria-hidden="true"><span/><span/><span/><span/></div>
           <a className="ring-link ring-about" href="#about">About</a>
