@@ -51,12 +51,12 @@ export default function Home() {
       const y = (event.clientY / window.innerHeight - .5) * 22;
       heroArt.current?.style.setProperty('--mouse-x', `${x}px`);
       heroArt.current?.style.setProperty('--mouse-y', `${y}px`);
-      heroArt.current?.querySelectorAll<HTMLElement>('.liquid-blob').forEach((blob, index) => {
-        const strength = [.54, .34, .21, .13][index] ?? .1;
+      heroArt.current?.querySelectorAll<HTMLElement>('.smoke-wisp').forEach((blob, index) => {
+        const strength = [.28, .2, .14, .09, .06][index] ?? .05;
         const localX = (event.clientX - window.innerWidth * .73) * strength;
         const localY = (event.clientY - window.innerHeight * .5) * strength;
-        blob.style.setProperty('--liquid-x', `${localX}px`);
-        blob.style.setProperty('--liquid-y', `${localY}px`);
+        blob.style.setProperty('--smoke-x', `${localX}px`);
+        blob.style.setProperty('--smoke-y', `${localY}px`);
       });
     };
     const hover = (event: Event) => {
@@ -99,11 +99,8 @@ export default function Home() {
         <div className="hero-actions"><a className="button primary" href="#work">View selected work <ArrowDown size={17}/></a><a className="button secondary" href="mailto:s67587698@gmail.com">Get in touch <Mail size={16}/></a></div>
       </div>
       <div className="hero-art" ref={heroArt}>
-        <svg className="liquid-filter" aria-hidden="true">
-          <filter id="liquid-goo"><feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12" result="goo"/></filter>
-        </svg>
-        <div className="liquid-field" aria-hidden="true">
-          <div className="liquid-blob liquid-one"><i/></div><div className="liquid-blob liquid-two"><i/></div><div className="liquid-blob liquid-three"><i/></div><div className="liquid-blob liquid-four"><i/></div>
+        <div className="smoke-field" aria-hidden="true">
+          <div className="smoke-wisp smoke-one"><i/></div><div className="smoke-wisp smoke-two"><i/></div><div className="smoke-wisp smoke-three"><i/></div><div className="smoke-wisp smoke-four"><i/></div><div className="smoke-wisp smoke-five"><i/></div>
         </div>
         <div className="orb orb-b"/><span className="cross" aria-hidden="true">+</span>
         <div className="ring-shell" aria-label="环形页面导航">
