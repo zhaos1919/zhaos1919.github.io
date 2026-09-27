@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUpRight, Mail, MoveRight } from 'lucide-react';
 
 const projects = [
@@ -33,14 +33,49 @@ const capabilities = [
 
 export default function Home() {
   const [activeProject, setActiveProject] = useState(0);
+  const cursorDot = useRef<HTMLDivElement>(null);
+  const cursorRing = useRef<HTMLDivElement>(null);
+  const heroArt = useRef<HTMLDivElement>(null);
+  const scrollProgress = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>('[data-reveal]');
     const observer = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('is-visible')), { threshold: .1 });
     els.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
+    const pointer = (event: PointerEvent) => {
+      cursorDot.current?.style.setProperty('transform', `translate3d(${event.clientX}px,${event.clientY}px,0)`);
+      cursorRing.current?.animate(
+        { transform: `translate3d(${event.clientX}px,${event.clientY}px,0)` },
+        { duration: 420, fill: 'forwards', easing: 'cubic-bezier(.2,.75,.25,1)' },
+      );
+      const x = (event.clientX / window.innerWidth - .5) * 22;
+      const y = (event.clientY / window.innerHeight - .5) * 22;
+      heroArt.current?.style.setProperty('--mouse-x', `${x}px`);
+      heroArt.current?.style.setProperty('--mouse-y', `${y}px`);
+    };
+    const hover = (event: Event) => {
+      const target = event.target as HTMLElement;
+      cursorRing.current?.classList.toggle('is-active', Boolean(target.closest('a,button,[data-cursor]')));
+    };
+    const scroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollProgress.current?.style.setProperty('transform', `scaleX(${max > 0 ? window.scrollY / max : 0})`);
+    };
+    window.addEventListener('pointermove', pointer);
+    document.addEventListener('pointerover', hover);
+    window.addEventListener('scroll', scroll, { passive: true });
+    scroll();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('pointermove', pointer);
+      document.removeEventListener('pointerover', hover);
+      window.removeEventListener('scroll', scroll);
+    };
   }, []);
 
   return <main>
+    <div className="cursor-dot" ref={cursorDot} aria-hidden="true"/>
+    <div className="cursor-ring" ref={cursorRing} aria-hidden="true"><span>VIEW</span></div>
+    <div className="scroll-progress" ref={scrollProgress} aria-hidden="true"/>
     <a className="skip-link" href="#work">跳至项目</a>
     <nav className="site-nav" aria-label="主导航">
       <a className="nav-mark" href="#top">ZS</a>
@@ -56,13 +91,23 @@ export default function Home() {
         <p className="hero-cn">计算机科学与技术本科生，关注 AI 工具、Web 交互与创作工作流。</p>
         <div className="hero-actions"><a className="button primary" href="#work">View selected work <ArrowDown size={17}/></a><a className="button secondary" href="mailto:s67587698@gmail.com">Get in touch <Mail size={16}/></a></div>
       </div>
-      <div className="hero-art" aria-hidden="true"><div className="orb orb-a"/><div className="orb orb-b"/><span className="orbit orbit-a">PRODUCT · CODE · EXPERIMENT ·</span><span className="orbit orbit-b">SELECTED WORK / 2026</span><span className="cross">+</span></div>
+      <div className="hero-art" ref={heroArt}>
+        <div className="orb orb-a"/><div className="orb orb-b"/><span className="cross" aria-hidden="true">+</span>
+        <div className="ring-shell" aria-label="环形页面导航">
+          <div className="ring-orbit" aria-hidden="true"><span/><span/><span/><span/></div>
+          <a className="ring-link ring-about" href="#about">About</a>
+          <a className="ring-link ring-work" href="#work">Selected work</a>
+          <a className="ring-link ring-exp" href="#experience">Experience</a>
+          <a className="ring-link ring-contact" href="#contact">Contact</a>
+          <div className="ring-core" aria-hidden="true"><span>explore</span></div>
+        </div>
+      </div>
       <p className="hero-strip">PRODUCT DESIGN · AI WORKFLOW · WEB DEVELOPMENT · CONTENT OPERATIONS</p>
     </section>
 
     <section className="about section-grid" id="about">
       <div className="portrait-wrap" data-reveal><img src="/zhaoshanshan-portrait.png" alt="赵珊珊证件照"/><span>PORTRAIT / REPLACEABLE</span></div>
-      <div className="about-copy" data-reveal><p className="section-index">00 — ABOUT</p><h2>我喜欢把真实业务里的麻烦，<br/>变成可以使用、测试和迭代的产品。</h2><p>我既理解内容生产和运营数据，也愿意进入代码、交互与性能细节。比起停在想法，我更习惯做出原型，再用真实反馈修正判断。</p><div className="about-tags"><span>COMPUTER SCIENCE</span><span>AI TOOLS</span><span>WEB & 3D</span><span>FAST PROTOTYPING</span></div></div>
+      <div className="about-copy" data-reveal><p className="section-index">00 — ABOUT</p><h2>我喜欢把真实业务里的麻烦，<br/>变成可以使用、测试和迭代的产品。<i className="type-caret" aria-hidden="true"/></h2><p>我既理解内容生产和运营数据，也愿意进入代码、交互与性能细节。比起停在想法，我更习惯做出原型，再用真实反馈修正判断。</p><div className="about-tags"><span>COMPUTER SCIENCE</span><span>AI TOOLS</span><span>WEB & 3D</span><span>FAST PROTOTYPING</span></div></div>
     </section>
 
     <section className="work" id="work">
@@ -88,6 +133,6 @@ export default function Home() {
 
     <section className="visual-diary"><div className="diary-copy" data-reveal><p className="section-index light">04 — VISUAL DIARY</p><h2>More than<br/>a résumé.</h2><p>生活、摄影、创作与个人表达的空间。素材会在你提供后替换这里的占位页。</p></div><div className="diary-placeholder"><span>PERSONAL IMAGE / VIDEO</span><strong>+</strong><small>WAITING FOR YOUR MATERIAL</small></div></section>
 
-    <footer><p className="micro">AVAILABLE FOR CONVERSATIONS / 2026</p><h2>Let&apos;s build something<br/><em>people can feel.</em></h2><div className="footer-links"><a href="mailto:s67587698@gmail.com">s67587698@gmail.com <ArrowUpRight size={18}/></a><span>Shanghai · Pudong</span><span>198 6213 8821</span></div><div className="footer-bottom"><strong>赵珊珊</strong><span>© 2026 · MADE WITH CURIOSITY</span></div></footer>
+    <footer id="contact"><p className="micro">AVAILABLE FOR CONVERSATIONS / 2026</p><h2>Let&apos;s build something<br/><em>people can feel.</em></h2><div className="footer-links"><a href="mailto:s67587698@gmail.com">s67587698@gmail.com <ArrowUpRight size={18}/></a><span>Shanghai · Pudong</span><span>198 6213 8821</span></div><div className="footer-bottom"><strong>赵珊珊</strong><span>© 2026 · MADE WITH CURIOSITY</span></div></footer>
   </main>;
 }
